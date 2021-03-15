@@ -12,7 +12,7 @@ class Listener(object):
 
     def __init__(self, fp: str):
         
-        if not path.exists(fp): raise FileNotFoundError(f"file path Doesn't Exist {fp}")
+        if not path.exists(fp): err_helper.showError('0x1', crash=True)
 
         self.path = fp
         self.listener_thread = threading.Thread(target=self.listening)
