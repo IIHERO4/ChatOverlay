@@ -1,4 +1,5 @@
 import sys
+import logging
 class err_helper:
     """Helps User For Common Errors
     """
@@ -32,6 +33,7 @@ class err_helper:
         }
 
         print(f'\033[31m{com_err[err_code][0]}\n\033[32m{com_err[err_code][1]}')
+        logging.critical(f'\033[31m{com_err[err_code][0]} CRASH={crash}')
 
         if crash: err_helper.wait_close()
 

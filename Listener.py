@@ -32,12 +32,12 @@ class Listener(object):
         self.listener_thread = threading.Thread(target=self.listening, daemon=True)
         self.listener_thread.start()
 
-        stateupdate = threading.Thread(target=self.showStatus, daemon=True)
-        stateupdate.start()
+        # stateupdate = threading.Thread(target=self.showStatus, daemon=True)
+        # stateupdate.start()
 
         # Main App Loop (Keeps the Client opened)
-        while not self.wantClose:
-            pass
+        while self.listener_thread.is_alive():
+            time.sleep(1)
         else:
             print('Shutting Main Thread-1')
             sys.exit()
@@ -55,7 +55,7 @@ class Listener(object):
                 curr_size = path.getsize(self.path)
                 modified_time = path.getmtime(self.path)
                 
-
+                time.sleep(.2)
                 # Latest.log Either got Archived by Minecraft or a new Instance of Minecraft Opened
                 if self.fileSize > curr_size:
                     print('\033[31mDetected Change in Size')
@@ -110,29 +110,29 @@ class Listener(object):
         
         return False
 
-    def showStatus(self):
-        """Opened in another Thread, 
-           Usage: Checks the listener's Thread Health to take actions
-        """
-        while True:
+    # def showStatus(self):
+    #     """Opened in another Thread, 
+    #        Usage: Checks the listener's Thread Health to take actions
+    #     """
+    #     while True:
 
-            # Checks The Thread Health True if the listener thread is ded
-            if not self.listener_thread.is_alive():
+    #         # Checks The Thread Health True if the listener thread is ded
+    #         if not self.listener_thread.is_alive():
                 
-                print('\r\033[36mStatus: \033[31mNotHealthy and NotListening...., Do You Wish to Close?[y/n]', end='')
-                ans = input()
+    #             print('\r\033[36mStatus: \033[31mNotHealthy and NotListening...., Do You Wish to Close?[y/n]', end='')
+    #             ans = input()
 
-                if ans.lower() == 'y':
-                    break
-                # Ignore That Cringe
-                elif ans.lower() == 'n':
-                    print('\r\033[36mLmao Im not gonna anything anyway, Hows Your Day?')
-                    input('You =:')
-                    print('\033[32mNice, I kinda need to go WindowsOS is shouting, \033[35mBye~~')
+    #             if ans.lower() == 'y':
+    #                 break
+    #             # Ignore That Cringe
+    #             elif ans.lower() == 'n':
+    #                 print('\r\033[36mLmao Im not gonna anything anyway, Hows Your Day?')
+    #                 input('You =:')
+    #                 print('\033[32mNice, I kinda need to go WindowsOS is shouting, \033[35mBye~~')
                     
-                    break
+    #                 break
         
-        print('\033[36mThanks For Using Me, Looking Forward to work for You again \033[31m♥ ')
-        input('Press Enter To Close')
-        self.wantClose = True
-        sys.exit()
+    #     print('\033[36mThanks For Using Me, Looking Forward to work for You again \033[31m♥ ')
+    #     input('Press Enter To Close')
+    #     self.wantClose = True
+    #     sys.exit()
