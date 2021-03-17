@@ -9,23 +9,54 @@
     },
     "clients": {
         "LunarClient": {
-            "path": "%USER%/.lunarclient/offline/1.8/logs/latest.log"
+            "path": "C://Users//alias/.lunarclient/offline/1.8/logs/latest.log"
         },
         "blc": {
-            "path": "%APPDATA%/.minecraft/logs/blclient/minecraft/latest.log"
+            "path": "C://Users//alias//AppData//Roaming/.minecraft/logs/blclient/minecraft/latest.log"
         },
         "minecraft": {
-            "path": "%APPDATA%/.minecraft/logs/latest.log"
+            "path": "C://Users//alias//AppData//Roaming/.minecraft/logs/latest.log"
         },
         "pvplounge": {
-            "path": "%APPDATA%/.pvplounge/logs/latest.log"
+            "path": "C://Users//alias//AppData//Roaming/.pvplounge/logs/latest.log"
         }
     },
     "Key": "pub",
-    "IGN": "[YOUR_IGN]",
-    "Api_Key": "[YOUR_API_KEY]",
+    "IGN": "whiteblackwhat",
+    "Api_Key": " 5f7b24a7-8490-4b2d-ad43-a88b72e51b79",
     "whitelist": [
-        "[YOUR_TEAMMATE]"
+        "[YOUR_TEAMMATE]",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        ""
     ],
     "nicks": [
         "[YOUR_NICK]"
