@@ -3,6 +3,7 @@ from colorama import init as colorinit
 from error_helper import err_helper
 from os import path, mkdir
 from logging.handlers import TimedRotatingFileHandler
+from datetime import datetime
 import sys
 import listener
 import json
@@ -59,22 +60,33 @@ class Overlay:
         logging.info('\033[32mOVERLAY STARTED')
 
         while self.Listener_thread.is_alive():
-            time.sleep(1)
-        # TODO MAYBE CHANGE THE STARTLISTENING????
+            try: time.sleep(1) 
+            except KeyboardInterrupt: self.editWhitelist()
+        
         
     
     def onNewLine(self, line):
         
-        print('\n'+line)
         if 'ONLINE:' in line:
             # TODO SEND PLAYER TO SERVER
-            pass
+            players = line[48:].split(',')
+            prompt = ''
+            for player in players:
+                
+                if player.strip().lower() == self.config['IGN'].lower():
+                    
+                    prompt += f'\n\033[32m{player.strip()}'
+                    continue
+                
+                prompt += f'\n\033[36m{player.strip()}'
+            print(prompt)
+
         if 'Your new API key is' in line:
             self.api = line[len('[02:39:43] [Client thread/INFO]: [CHAT] Your new API key is'):]
             logging.info(f'\033[36mNew Api Key detected {self.api}')
             self.config['Api_Key'] = self.api
-            self.saveConfig(self.config, './config.json')
-            self.config = self.loadConfig('./config.json')
+            self.saveConfig(self.config, './config.json', reload=True)
+            
     
     def validateConfig(self):
         while True:
@@ -94,8 +106,7 @@ class Overlay:
 
                 err_helper.showError('0x8', crash=False)
                 self.config['Api_Key'] = 'PENDING'
-                self.saveConfig(self.config, './config.json')
-                self.config = self.loadConfig('./config.json')
+                self.saveConfig(self.config, './config.json', reload=True)
                 self.api = self.config['Api_Key']
                 print('Wait Till Asked to Type /api new')
                 break
@@ -113,11 +124,11 @@ class Overlay:
 
     def check_api(self):
         try:
-            logging.debug(f'Running Checks On the Api Key {self.config["Api_Key"]}')
+            logging.info(f'\033[31mRunning Checks On the Api Key {self.config["Api_Key"]}')
 
             hyinfo = requests.get(f'https://api.hypixel.net/player?key={self.config["Api_Key"].strip()}&name={self.config["IGN"].strip()}')
             hyinfo_data = hyinfo.json()
-            logging.debug(f'API Check Results: {hyinfo.status_code} {hyinfo.json()} ')
+            logging.debug(f'API Check Results: {hyinfo.status_code}')
             if hyinfo.status_code == 403:
                 err_helper.showError('0x9', f'Follow Instructions, {self.api}')
                 
@@ -125,8 +136,8 @@ class Overlay:
                 logging.error('Api Key Invalid')
                 self.api = 'PENDING'
                 self.config['Api_Key'] = self.api
-                self.saveConfig(self.config, './config.json')
-                self.config = self.loadConfig('./config.json')
+                self.saveConfig(self.config, './config.json', reload=True)
+                
                 return self.wait_api()
                 
                 
@@ -139,10 +150,12 @@ class Overlay:
             else:
                 if 'recently' in hyinfo_data.get('cause') and hyinfo.status_code == 429:
                     logging.error('\033[31mFailed To check IGN by hypixel retrying with sk1er')
+                    
                     hyinfo = requests.get(f'https://api.sk1er.club/{self.config["IGN"]}')
                     
                     if hyinfo.status_code not in range(200, 299):
                         err_helper.showError('0x10', hyinfo.status_code)
+                    else: logging.info('Successfully Checked Used Second Hand')
                     
             
         except KeyError as e: err_helper.showError('0x7', e)
@@ -185,32 +198,78 @@ class Overlay:
                 
         except KeyError as e: err_helper.showError('0x7', e, crash=True) 
 
-    def saveConfig(self, json_, fp):
-        logging.debug(f'\033[36mUpdating config.json {json_}')
+    def editWhitelist(self):
+        
+        while True:
+            print('\033[32mEdit Teammates Or Nicks, Maybe Resume?[1/2/0] ', end='')
+            try: 
+                opt = int(input())
+                if opt not in range(0, 3):
+                    raise ValueError('InValid Option')
+                break 
+            except (ValueError, EOFError): logging.warning('\033[33mYou Call That A NUMBER??')
+        if opt == 1:
+            while True:
+                try:
+                    logging.debug('Editing Team Invoked')
+                    print(defaults.EDITPROMPT['teammate'])
+                    teammate = input()
+                    self.config['whitelist'].append(teammate)
+                    self.saveConfig(self.config, './config.json', reload=True)
+                except (KeyboardInterrupt, EOFError): break
+                except (KeyError): 
+                    err_helper.showError('0x7')
+                    self.fixConfig(str(self.config), './config.json')
+        elif opt == 2:
+            while True:
+                try:
+                    logging.debug('Editing Nicks Invoked')
+                    print(defaults.EDITPROMPT['nick'])
+                    nick = input()
+                    self.config['nicks'].append(nick)
+                    self.saveConfig(self.config, './config.json', reload=True)
+                except (KeyboardInterrupt, EOFError): break
+                except (KeyError):
+                    err_helper.showError('0x7')
+                    self.fixConfig(str(self.config), './config.json')
+        
+    def saveConfig(self, json_, fp, reload=False):
+        logging.debug(f'\n\033[36mUpdating config.json Reloading: {reload}')
+        logging.debug(f'\n\033[36mUpdating config.json JSON:{json_}')
         with open(fp, 'w+') as _file:
 
-                # TODO LOGGING
                 _file.write(json.dumps(json_, indent=4))
                 _file.close()
+        if reload:
+            self.config = self.loadConfig(fp)
     
     def fixConfig(self, config_str, fp):
-        # TODO FIXING LOGGING
+        
+        print(config_str, locate)
+        if defaults.CONFIG.keys() & self.config.keys() != defaults.CONFIG.keys():
+            logging.warning('\033[33mFixed Config.json Validation')
+            for key in defaults.CONFIG.keys():
+                if key not in self.config:
+                    
+                    self.config[f'{key}'] = defaults.CONFIG[f'{key}']
+            self.saveConfig(self.config, './config.json', reload=True)
+            config_str = json.dumps(self.config)
+            
         fixes = re.sub(r'\\', '/', config_str)
         logging.warning(f'Applied Fixes to config ')
         logging.debug(f'Applied Fixes to config {fixes}')
-        self.saveConfig(json.loads(fixes), fp)
+        self.saveConfig(json.loads(fixes), fp, reload=True)
     
     def loadConfig(self, fp: str) -> dict:
         
-        raw_config = open(fp, 'r').read()
-        logging.debug('Loading Config')
+        try: raw_config = open(fp, 'r').read()
+        except (NotADirectoryError, FileNotFoundError, FileExistsError):
+            logging.warning('Couldn\'t Find Config.json, Rewriting One')
+            self.saveConfig(defaults.CONFIG, './config.json')
+        logging.info('\033[32mLoading Config')
         try: return json.loads(raw_config)
-
-        # this handle is never gonna get triggered unless....
-        except (NotADirectoryError, FileNotFoundError, FileExistsError) as e: 
-            err_helper.showError('0x0', e, crash=True)
-        
-        except json.JSONDecodeError: 
+        except json.JSONDecodeError:
+            logging.critical(raw_config, 'aaa')
             self.fixConfig(raw_config, fp)
             try: return json.loads(open(fp, 'r').read())
             except json.JSONDecodeError: err_helper.showError('0x7', crash=True)
@@ -218,9 +277,10 @@ class Overlay:
 
 if __name__ == '__main__':
     if not path.exists('./logs'): mkdir('./logs')
+    print(defaults.HEADER)
     console_stdout = logging.StreamHandler()
-    console_stdout.setLevel(logging.INFO)
-    log_file = logging.handlers.TimedRotatingFileHandler("./logs/overlay.log", when="midnight", interval=1)
+    console_stdout.setLevel(logging.DEBUG)
+    log_file = logging.handlers.TimedRotatingFileHandler("./logs/overlay.log", when="H", interval=1)
     log_file.setLevel(logging.DEBUG)
     logging.basicConfig(
         level=logging.DEBUG,
@@ -232,6 +292,5 @@ if __name__ == '__main__':
         ]
 
     )
-    
     overlay = Overlay('./config.json')
     overlay.run()

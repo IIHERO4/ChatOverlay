@@ -9,19 +9,25 @@
     },
     "clients": {
         "LunarClient": {
-            "path": "C:/Users/alias/.lunarclient/offline/1.8/logs/latest.log"
+            "path": "%USER%/.lunarclient/offline/1.8/logs/latest.log"
         },
         "blc": {
-            "path": ".."
+            "path": "%APPDATA%/.minecraft/logs/blclient/minecraft/latest.log"
         },
         "minecraft": {
-            "path": ".."
+            "path": "%APPDATA%/.minecraft/logs/latest.log"
         },
         "pvplounge": {
-            "path": ".."
+            "path": "%APPDATA%/.pvplounge/logs/latest.log"
         }
     },
     "Key": "pub",
-    "IGN": "whiteblackwhat",
-    "Api_Key": " d5114942-bc51-4fc5-be43-058bde6ef59a"
+    "IGN": "[YOUR_IGN]",
+    "Api_Key": "[YOUR_API_KEY]",
+    "whitelist": [
+        "[YOUR_TEAMMATE]"
+    ],
+    "nicks": [
+        "[YOUR_NICK]"
+    ]
 }

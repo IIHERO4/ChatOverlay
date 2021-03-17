@@ -18,7 +18,6 @@ class Listener(object):
         self.listener_thread = threading.Thread(target=self.listening)
         self.last_time_modified = path.getmtime(self.path)
         self.fileSize = path.getsize(self.path)
-        self.game_info = []
         self.status = 0
         self.wantClose = False
         self.newLine_callback = None
