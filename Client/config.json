@@ -1,0 +1,33 @@
+{
+    "host": {
+        "name": "localhost",
+        "port": 5000,
+        "routes": {
+            "GET_players": "localhost/players",
+            "GET_status": "localhost/status"
+        }
+    },
+    "clients": {
+        "LunarClient": {
+            "path": "%USER%/.lunarclient/offline/1.8/logs/latest.log"
+        },
+        "blc": {
+            "path": "%APPDATA%/Roaming/.minecraft/logs/blclient/minecraft/latest.log"
+        },
+        "minecraft": {
+            "path": "%APPDATA%/Roaming/.minecraft/logs/latest.log"
+        },
+        "pvplounge": {
+            "path": "%APPDATA%/Roaming/.pvplounge/logs/latest.log"
+        }
+    },
+    "Key": "pub",
+    "IGN": "[YOUR_IGN]",
+    "Api_Key": "[YOUR_API_KEY]",
+    "whitelist": [
+        "[YOUR_TEAMMATE]"
+    ],
+    "nicks": [
+        "[YOUR_NICK]"
+    ]
+}

@@ -2,6 +2,5 @@ __pycache__/
 logs/
 .idea/
 build/
-dist/
 *.spec
-config.json
+dist/
