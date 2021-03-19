@@ -71,15 +71,24 @@ class Overlay:
             # TODO SEND PLAYER TO SERVER
             players = line[48:].split(',')
             prompt = ''
+            
             for player in players:
                 
-                if player.strip().lower() == self.config['IGN'].lower():
+                if player.strip().lower() == self.config['IGN'].lower() or player.strip() in self.config['whitelist']:
                     
                     prompt += f'\n\033[32m{player.strip()}'
+
                     continue
                 
                 prompt += f'\n\033[36m{player.strip()}'
-            print(prompt)
+            headers = {
+                'IGN': self.config['IGN'],
+                'whitelist': json.dumps(self.config['whitelist']),
+                'api_key': self.config['Api_Key'].strip(),
+                'players': json.dumps(players)
+            }
+            req = requests.get(f'{self.host}:{self.port}/{self.route["GET_players"]}', headers=headers)
+            print(prompt, req)
 
         if 'Your new API key is' in line:
             self.api = line[len('[02:39:43] [Client thread/INFO]: [CHAT] Your new API key is'):]
@@ -214,7 +223,7 @@ class Overlay:
                     logging.debug('Editing Team Invoked')
                     print(defaults.EDITPROMPT['teammate'])
                     teammate = input()
-                    self.config['whitelist'].append(teammate)
+                    self.config['whitelist'].append(teammate.lower().strip())
                     self.saveConfig(self.config, './config.json', reload=True)
                 except (KeyboardInterrupt, EOFError): break
                 except (KeyError): 
@@ -226,7 +235,7 @@ class Overlay:
                     logging.debug('Editing Nicks Invoked')
                     print(defaults.EDITPROMPT['nick'])
                     nick = input()
-                    self.config['nicks'].append(nick)
+                    self.config['nicks'].append(nick.lower().strip())
                     self.saveConfig(self.config, './config.json', reload=True)
                 except (KeyboardInterrupt, EOFError): break
                 except (KeyError):
@@ -245,7 +254,7 @@ class Overlay:
     
     def fixConfig(self, config_str, fp):
         
-        print(config_str, locate)
+        print(config_str)
         if defaults.CONFIG.keys() & self.config.keys() != defaults.CONFIG.keys():
             logging.warning('\033[33mFixed Config.json Validation')
             for key in defaults.CONFIG.keys():
@@ -279,7 +288,7 @@ if __name__ == '__main__':
     if not path.exists('./logs'): mkdir('./logs')
     print(defaults.HEADER)
     console_stdout = logging.StreamHandler()
-    console_stdout.setLevel(logging.DEBUG)
+    console_stdout.setLevel(logging.DEBUG if '-D' in sys.argv else logging.INFO)
     log_file = logging.handlers.TimedRotatingFileHandler("./logs/overlay.log", when="H", interval=1)
     log_file.setLevel(logging.DEBUG)
     logging.basicConfig(

@@ -3,18 +3,18 @@ from minecraft import authentication as mineauth
 from minecraft.exceptions import YggdrasilError
 from minecraft.networking.connection import Connection
 from minecraft.networking.packets import serverbound, clientbound
-from colorama import init as colorinit
 import json
 
 
 class Bot:
 
-    def __init__(self, email: str, password: str):
+    def __init__(self, email: str, password: str, onMsg=None):
         """Init a Bot obj with email and password
 
         Args:
             email (str): mojang credentials [email]
             password (str): mojang credentials [password]
+            onMsg (function): Function will be called on new message
         """
 
         self.email = email
@@ -22,6 +22,7 @@ class Bot:
         self.authToken = mineauth.AuthenticationToken()
         self.connection = None
         self.is_connected = False
+        self.onMsg = onMsg
 
 
     def connect(self, ip: str, port: int=25565) -> bool:
@@ -37,7 +38,7 @@ class Bot:
             try: 
                 self.connection = Connection(ip, port, auth_token=self.authToken)
                 self.connection.connect()
-                self.connection.register_packet_listener(self.chat, clientbound.play.ChatMessagePacket)
+                # self.connection.register_packet_listener(self.chat, clientbound.play.ChatMessagePacket)
                 self.is_connected = True
             except (YggdrasilError, Exception): return False
             
@@ -92,6 +93,7 @@ class Bot:
     def chat(self, chat_packet):
 
         msg = Fatdubs.utils.msg_raw(json.loads(chat_packet.json_data))
-        print(f'\033[32m{msg}')
+        self.onMsg(msg)
+        
         
 
